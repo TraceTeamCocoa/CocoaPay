@@ -54,8 +54,20 @@ function actualizarEncabezado() {
 }
 
 function inicializarDashboard() {
-  document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>mostrarSeccion(btn.dataset.section)));
+  //document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>mostrarSeccion(btn.dataset.section)));
+  document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+
+        mostrarSeccion(btn.dataset.section);
+
+        // Cerrar menú en dispositivos móviles
+        if (window.innerWidth <= 800) {
+          document.getElementById('sidebar')?.classList.remove('open');
+        }
+
+      });
+    });
   document.querySelectorAll('[data-go]').forEach(btn=>btn.addEventListener('click',()=>mostrarSeccion(btn.dataset.go)));
-  document.getElementById('btnMenu')?.addEventListener('click',()=>document.getElementById('sidebar')?.classList.toggle('open'));
+  //document.getElementById('btnMenu')?.addEventListener('click',()=>document.getElementById('sidebar')?.classList.toggle('open'));
   actualizarEncabezado(); actualizarDashboard(); renderProductoresTable();
 }
