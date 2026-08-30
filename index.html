@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CocoaPay v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+    .linea-horizontal {
+    grid-column: 1 / -1;
+    border-top: 1px solid #ddd;
+    height: 0;
+    margin: 5px 0;
+}
+#tablaHistorial_wrapper{
+    font-size:10px;
+}
+
+#tablaHistorial_wrapper .dt-search input{
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:7px 9px;
+    font-size:10px;
+}
+
+#tablaHistorial_wrapper .dt-length select{
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:5px 8px;
+    font-size:10px;
+}
+
+#tablaHistorial_wrapper .dt-paging .pagination{
+    margin-bottom:0;
+}
+
+#tablaHistorial_wrapper .page-link{
+    font-size:10px;
+    color:#137c69;
+}
+
+#tablaHistorial_wrapper .page-item.active .page-link{
+    background:#16a085;
+    border-color:#16a085;
+    color:#fff;
+}
+#tablaHistorial_wrapper .dt-length select {
+    width: 60px !important;
+    min-width: 60px;
+    padding: 5px 24px 5px 8px;
+    font-size: 10px;
+}
+/* Ajustar tabla al ancho disponible */
+#tablaHistorial_wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+#tablaHistorial {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+/* Las celdas se adaptan al ancho */
+#tablaHistorial th,
+#tablaHistorial td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px 9px;
+    font-size: 10px;
+}
+/* ================================
+   FORMA DE PAGO - ESTILO TARJETA
+   ================================ */
+.pago-badge {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.pago-efectivo {
+    background: #e8f8f2;
+    color: #15a078;
+    border-color: #cceee3;
+}
+
+.pago-transferencia {
+    background: #eaf4ff;
+    color: #287cc8;
+    border-color: #d2e8fa;
+}
+
+.pago-cheque {
+    background: #fff2df;
+    color: #d88a17;
+    border-color: #f4dfbf;
+}
+
+.pago-mixto-verde {
+    background: #e4f6f1;
+    color: #168d77;
+    border-color: #c9e9e1;
+}
+
+.pago-mixto-naranja {
+    background: #fff0df;
+    color: #c87918;
+    border-color: #f1dcc0;
+}
+
+
+.pago-mixto-azul {
+    background: #f4eafa;
+    color: #9c46c6;
+    border-color: #e5d5ef;
+}
+
+.pago-otro {
+    background: #eef8e2;
+    color: #75ad21;
+    border-color: #dcebc8;
+}
+.doc-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.doc-badge small {
+    font-size: 9px;
+    color: #777;
+    font-weight: 600;
+}
+
+.doc-number {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.doc-number strong,
+.doc-number b {
+    font-size: 13px;
+    line-height: 1;
+}
+
+.doc-number b {
+    color: var(--accent);
+}
+
+/* ================================
+   MODAL
+   ================================ */
+
+.confirm-summary {
+    background: #f7faf9;
+    border: 1px solid #dce9e6;
+    border-radius: 7px;
+    padding: 12px;
+    display: grid;
+    gap: 8px;
+}
+
+.confirm-summary div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.confirm-summary span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.confirm-summary strong {
+    font-size: 11px;
+    color: #253737;
+    text-align: right;
+}
+
+.confirm-summary div:first-child strong {
+    color: #137c69;
+}
+
+.confirm-warning {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+/* ================================
+   LOGO BARRA DE MENU
+   ================================ */
+.brand.has-logo .brand-info{
+    display:none;
+}
+
+.brand.has-logo{
+    justify-content:center;
+}
+
+.brand.has-logo .brand-mark{
+    width:150px;
+    height:55px;
+    background:transparent;
+    border-radius:0;
+    transform:translateY(-5px);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+
+.brand.has-logo .brand-mark img{
+    width:100%;
+    height:100%;
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    object-position:center;
+    display:block;
+}
+
+.brand-mark img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:none;
+}
+
+.brand-mark img.loaded{
+    display:block;
+}
+
+.brand-mark img.loaded + span{
+    display:none;
+}
+
+/* ================================
+   ERRORES REGISTRO DE PESO
+   ================================ */
+.field-error{
+    border-color:#d9534f !important;
+    background:#fff5f5 !important;
+}
+
+.error-message{
+    color:#d9534f;
+    font-size:9px;
+    margin-top:4px;
+    display:block;
+}
+.success-message{
+    color:#159d83;
+    font-size:9px;
+    margin-top:4px;
+}
+
+/* ================================
+   DATATABLES - PRODUCTORES
+   ================================ */
+
+#tablaProductores_wrapper {
+    width: 90%;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 10px;
+    margin-bottom: 30px;
+}
+
+#tablaProductores_wrapper .dt-search input {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 7px 9px;
+    font-size: 10px;
+}
+
+#tablaProductores_wrapper .dt-length select {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 24px 5px 8px;
+    font-size: 10px;
+    width: 60px !important;
+    min-width: 60px;
+}
+
+#tablaProductores_wrapper .dt-paging .pagination {
+    margin-bottom: 0;
+}
+
+#tablaProductores_wrapper .page-link {
+    font-size: 10px;
+    color: #137c69;
+}
+
+#tablaProductores_wrapper .page-item.active .page-link {
+    background: #16a085;
+    border-color: #16a085;
+    color: #fff;
+}
+
+#tablaProductores {
+    width: 98% !important;
+}
+
+#tablaProductores th,
+#tablaProductores td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px 9px;
+    font-size: 10px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div class="modal fade" id="modalConfirmarCompra" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar comprobante</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p style="margin-bottom:10px;">
+                    ¿Está seguro de que desea generar este comprobante?
+                </p>
+
+                <div class="confirm-summary">
+                    <div>
+                        <span>Comprobante</span>
+                        <strong id="confirmComprobante">001-001-000000001</strong>
+                    </div>
+
+                    <div>
+                        <span>Productor</span>
+                        <strong id="confirmProductor">—</strong>
+                    </div>
+
+                    <div>
+                        <span>Cantidad</span>
+                        <strong id="confirmCantidad">0.00 QQ</strong>
+                    </div>
+
+                    <div>
+                        <span>Total</span>
+                        <strong id="confirmTotal">$ 0.00</strong>
+                    </div>
+                </div>
+
+                <p class="confirm-warning">
+                    Una vez generado, el comprobante será registrado en el historial.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button" class="primary-btn" id="btnConfirmarGeneracion">
+                    ✓ Confirmar y generar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+        <!--<div class="brand">
+            <div class="brand-mark">C</div>
+            <div><strong>CocoaPay</strong><small>v2</small></div>
+        </div>-->
+        <div class="brand">
+            <div class="brand-mark">
+                <img id="sidebarLogo" alt="Logo de empresa">
+                <span id="sidebarLogoFallback">C</span>
+            </div>
+
+            <div class="brand-info">
+                <strong>CocoaPay</strong>
+                <small>v2</small>
+            </div>
+        </div>
+        <nav class="main-nav">
+            <button class="nav-item active" data-section="dashboard"><span>⌂</span>Dashboard</button>
+            <button class="nav-item" data-section="nuevaCompra"><span>＋</span>Nueva compra</button>
+            <button class="nav-item" data-section="productores"><span>♟</span>Productores</button>
+            <button class="nav-item" data-section="empresa"><span>▦</span>Empresa</button>
+            <button class="nav-item" data-section="historial"><span>▤</span>Historial</button>
+            <button class="nav-item" data-section="configuracion"><span>⚙</span>Configuración</button>
+        </nav>
+        <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            <div><strong>Sistema local</strong><small id="estadoBase">Inicializando...</small></div>
+        </div>
+    </aside>
+
+    <main class="main-area">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-menu" id="btnMenu">☰</button>
+                <div><span class="page-kicker">COCOAPAY</span><h1 id="pageTitle">Dashboard</h1></div>
+            </div>
+            <div class="topbar-right">
+                <span id="topDate"></span>
+                <span class="divider"></span>
+                <div class="user-chip"><span class="avatar">◉</span><span id="topCompany">Empresa emisora</span></div>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- DASHBOARD -->
+            <section class="page-section active" id="section-dashboard">
+                <div class="welcome-row">
+                    <div><h2>Resumen de operaciones</h2><p>Control de compras, productores y comprobantes.</p></div>
+                    <button class="primary-btn" data-go="nuevaCompra">＋ Nueva compra</button>
+                </div>
+                <div class="kpi-grid">
+                    <!--<div class="kpi-card kpi-number-card"><div class="kpi-icon green">▣</div><div><strong id="kpiPrefix">001-001</strong><strong class="kpi-seq" id="kpiNext">000000001</strong><span>Próximo comprobante</span></div></div>-->
+                    <div class="kpi-card"><div class="kpi-icon blue">♟</div><div><strong id="kpiProducers">0</strong><span>Productores</span></div></div>
+                    <div class="kpi-card"><div class="kpi-icon purple">▤</div><div><strong id="kpiPurchases">0</strong><span>Compras registradas</span></div></div>
+                    <div class="kpi-card"><div class="kpi-icon orange">◫</div><div><strong id="kpiWeight">0.00 QQ</strong><span>Cacao neto comprado</span></div></div>
+                    <div class="kpi-card"><div class="kpi-icon lime">$</div><div><strong id="kpiTotal">$ 0.00</strong><span>Total compras</span></div></div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header"><div><h3>Últimas compras</h3><p>Comprobantes generados recientemente.</p></div><button class="text-btn" data-go="historial">Ver historial →</button></div>
+                        <div class="table-wrap"><table class="data-table"><thead><tr><th>Comprobante</th><th>Fecha</th><th>Productor</th><th>Peso neto</th><th>Total</th></tr></thead><tbody id="dashboardRecent"></tbody></table></div>
+                    </div>
+                    <div class="card quick-card">
+                        <div class="card-header"><div><h3>Acciones rápidas</h3><p>Acceda a las tareas principales.</p></div></div>
+                        <button class="quick-action" data-go="nuevaCompra"><span>＋</span><div><strong>Registrar compra</strong><small>Crear un nuevo comprobante</small></div></button>
+                        <button class="quick-action" data-go="productores"><span>♟</span><div><strong>Actualizar productores</strong><small>Cargar una nueva base desde Excel</small></div></button>
+                        <button class="quick-action" data-go="empresa"><span>▦</span><div><strong>Datos de empresa</strong><small>Actualizar razón social, RUC y dirección</small></div></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NUEVA COMPRA -->
+            <section class="page-section" id="section-nuevaCompra">
+                <!--<div class="section-heading"><div><h2>Nueva compra</h2><p>Registre la recepción de cacao y genere el comprobante</p></div><div class="doc-badge"><small>PRÓXIMO COMPROBANTE</small><strong id="vComprobantePrefix">001-001</strong><b id="vComprobante">000000001</b></div></div>-->
+                <div class="section-heading">
+                    <div>
+                        <h2>Nueva compra</h2>
+                        <p>Registre la recepción de cacao y genere el comprobante</p>
+                    </div>
+
+                    <div class="doc-badge">
+                        <small>PRÓXIMO COMPROBANTE</small>
+                        <div class="doc-number">
+                            <strong id="vComprobantePrefix">001-001</strong>
+                            <b id="vComprobante">000000001</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="workspace-grid">
+                    <div class="card form-card">
+                        <div class="step-title"><span>1</span><div><strong>Datos generales</strong><small>Información de la operación</small></div></div>
+                        <div class="form-grid two">
+                            <div class="field"><label for="fecha">Fecha</label><input type="date" id="fecha"></div>
+                            <!-- <div class="field"><label>No. interno</label><input type="text" id="numeroInterno" value="RC00000001" disabled></div> -->
+                            <div></div>
+                            <div class="field"><label for="productor">Productor</label><input type="text" id="productor" list="listaProductores" placeholder="Buscar productor..." autocomplete="off"><datalist id="listaProductores"></datalist><small id="resultadoProductor" class="field-help"></small></div>
+                            <div class="field"><label for="codigo">Código productor</label><input type="text" id="codigo" readonly></div>
+                            <!-- <div class="field"><label for="direccion">Dirección</label><input type="text" id="direccion" placeholder="Dirección del productor"></div>-->
+                            <div class="field"><label for="programa">Programa</label><select id="programa"><option value="">Seleccione</option><option>Cocoa Horizons</option><option>Cocoa Life</option><option>Rainforest Alliance</option><option>Traceable Cocoa</option><option>Otro</option></select></div>                            
+                        </div>
+                        <div class="step-title second"><span>2</span><div><strong>Detalle de la compra</strong><small>Información del producto, calidad, peso y condiciones de pago.</small></div></div>
+                        <!-- <div class="purchase-detail"> -->
+                        <div class="form-grid two">  
+                            <div class="text-btn">Detalles de la operación</div>
+                            <div></div>
+                            <div class="detail-field"><label for="pesoBruto">Cantidad</label><div class="input-with-unit"><input id="pesoBruto" type="number" min="0.01" step="0.01" placeholder="0.00"><span>QQ</span></div></div>
+                            <div></div>
+                            <div class="detail-field concept"><label for="concepto">Concepto</label><input id="concepto" value="Cacao en grano" placeholder="Ej. Cacao en grano"></div>
+                            <div class="detail-field"><label>Unidad de referencia</label><input value="Quintal (QQ)" disabled></div>
+                            <!--<div class="linea-horizontal"></div>-->
+                            <div class="text-btn">Parámetros de evaluación</div>
+                            <div></div>
+                            <div class="detail-field"><label for="tara">Tara (-)</label><div class="input-with-unit"><input id="tara" type="number"  min="0" step="0.01" placeholder="0.00"><span>QQ</span></div></div>
+                            <div class="detail-field"><label for="humedad">Humedad (-)</label><div class="input-with-unit"><input id="humedad" type="number"  min="0" max="100" step="0.01" placeholder="0.00"><span>%</span></div></div>
+                            <div class="detail-field"><label for="calificacion">Calificación (-)</label><div class="input-with-unit"><input id="calificacion" type="number"  min="0" step="0.01" placeholder="0.00"><span>%</span></div></div>
+                            <div></div>
+                            <div class="text-btn">Condiciones comerciales</div>
+                            <div></div>
+                            <div class="detail-field"><label for="precioBase">Precio base ($/QQ)</label><div class="input-prefix"><span>$</span><input id="precioBase" type="number" min="0" step="0.01" placeholder="0.00"></div></div>
+                            <div class="detail-field"><label for="bonificacion">Bonificación ($/QQ)</label><div class="input-prefix"><span>$</span><input id="bonificacion" type="number" step="0.01" value="3.17"></div></div>
+                            <div class="detail-field total-field"><label>Precio final ($/QQ)</label><strong id="formPrecioFinal">$ 0.00</strong></div>
+                            <div class="field"><label for="formaPago">Forma de pago</label><select id="formaPago"><option value="">Seleccione</option><option>Efectivo</option><option>Transferencia</option><option>Cheque</option><option>Efectivo / Transferencia</option><option>Efectivo / Cheque</option><option>Transferencia / Cheque</option><option>Otro</option></select></div>
+
+                        </div>
+                            <div class="field" style="margin-top: 13px;"><label for="observaciones">Observaciones</label><textarea id="observaciones" rows="3" placeholder="Observaciones de la compra..."></textarea></div>
+                        <!--<div class="weight-box">
+                            <div class="weight-box-title"><strong>Conversión de peso</strong><small>1 QQ = 45.36 KG</small></div>
+                            <div class="weight-grid">
+                                <div><span>Peso bruto</span><strong id="formPesoBrutoKG">0.00 KG</strong></div>
+                                <div><span>Humedad</span><div class="input-inline"><input id="humedad" type="number" min="0" max="100" step="0.01" placeholder="0.00"><b>%</b></div></div>
+                                <div><span>Peso neto</span><strong id="formPesoNetoQQ">0.00 QQ</strong></div>
+                                <div><span>Peso neto convertido</span><strong id="formPesoNetoKG">0.00 KG</strong></div>
+                            </div>
+                        </div>-->
+                        <div class="form-actions"><button class="primary-btn" id="btnGenerar">🖨 Generar comprobante PDF</button><!--<button class="secondary-btn" id="btnLimpiar">Limpiar</button>--></div>
+                    </div>
+                    <div class="card preview-card">
+                        <div class="card-header"><div><h3>Previsualizacion de Recepción de compra</h3><p>Verifica la información de la recepción de compra</p></div></div>
+                        <div class="a4-paper" id="receipt">
+                            <div class="invoice-head">
+                                <div class="brand-print"><div class="logo-print-box"><img id="receiptLogo" alt="Logo de empresa"></div><small id="logoFallback">COCOAPAY</small></div>
+                                <div class="company-print"><strong id="receiptEmpresaNombre">RAZON SOCIAL</strong><span id="receiptEmpresaDatos">RUC: 0999999999001<br>ACTIVIDAD ECONÓMICA PRINCIPAL<br>UBICACIÓN DEL ESTABLECIMIENTO 1</span></div>
+                                <!--<div class="contact-print"><strong id="vEmpresaRuc">9999999999001</strong><span id="vEmpresaDireccion">UBICACIÓN DEL ESTABLECIMIENTO 2</span></div>-->
+                            </div>
+                            <h2 class="invoice-title">RECEPCIÓN DE COMPRA</h2>
+                            <div class="invoice-rule"></div>
+                            <div class="meta-grid">
+                                <div><span>Fecha:</span><strong id="vFecha"></strong></div><!--<div><span>No. Interno:</span><strong id="vNumeroInterno">RC00000001</strong></div>--><div><span>Comprobante:</span><strong id="vComprobanteReceipt">001-001-000000001</strong></div>
+                                <div><span>Programa:</span><strong id="vPrograma"></strong></div><div><span>Forma de pago:</span><strong id="vFormaPago"></strong></div><div><span>Código productor:</span><strong id="vCodigo"></strong></div>
+                                <div class="wide"><span>Productor:</span><strong id="vProductor"></strong></div>
+                            </div>
+                            <table class="invoice-table"><thead><tr><th>DESCRIPCIÓN</th><th>CANTIDAD</th><th>UNIDAD</th><th>PRECIO BASE</th><th>BONIFICACIÓN</th><th>PRECIO FINAL</th><th>TOTAL</th></tr></thead><tbody><tr><td id="vConcepto">Cacao</td><td id="vCantidadCompra">0.00</td><td>QQ</td><td id="vPrecioBase">$ 0.00</td><td id="vBonificacionTable">$ 0.00</td><td id="vPrecioFinal">$ 0.00</td><td id="vTotal">$ 0.00</td></tr></tbody></table>
+                            <div class="weight-summary"><div><span>Peso bruto</span><strong><b id="vPesoBruto">0.00</b> QQ / <b id="vPesoBrutoKG">0.00</b> KG</strong></div><div><span>Tara</span><strong><b id="vTara2">0.00</b> QQ / <b id="vTaraKG">0.00</b> KG</strong></div><div><span>Calificación</span><strong id="vCalificacion">0.00%</strong></div><div><span>Humedad</span><strong id="vHumedad">0.00%</strong></div><div><span>Peso neto</span><strong><b id="vPesoNetoQQ">0.00</b> QQ / <b id="vPesoNetoKG">0.00</b> KG</strong></div></div><div class="invoice-bottom"><div class="observations"><strong>Observaciones:</strong><span id="vObservaciones">COMPRA DE CACAO</span><div class="signatures"><div><i></i><span>Aprobado por:</span></div><div><i></i><span>Recibí conforme</span></div></div></div><div class="totals"><div><span>Subtotal:</span><strong id="vSubtotal">$ 0.00</strong></div><div><span>Bonificación:</span><strong id="vBonificacionTotal">$ 0.00</strong></div><div><span>Descuento:</span><strong>$ 0.00</strong></div><div><span>V. Neto:</span><strong id="vVneto">$ 0.00</strong></div><div><span>Subtotal 0%:</span><strong>$ 0.00</strong></div><div><span>Subtotal 15%:</span><strong id="vSubtotal15">$ 0.00</strong></div><div><span>IVA 15%:</span><strong>$ 0.00</strong></div><div class="grand"><span>TOTAL:</span><strong id="vTotalFinal">$ 0.00</strong></div></div></div>
+                            <div class="paper-footer">Elaborado por: <strong id="vElaborado">CocoaPay</strong><span id="vFechaHora"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PRODUCTORES -->
+
+<section class="page-section" id="section-productores">
+
+<div class="section-heading">
+    <div>
+        <h2>Productores</h2>
+        <p>Administre la base que alimenta el registro de compras.</p>
+    </div>
+</div>
+
+<div class="single-grid">
+
+    <div class="card">
+
+        <!-- ============================= -->
+        <!-- IMPORTAR DESDE EXCEL -->
+        <!-- ============================= -->
+
+        <div class="upload-large">
+
+            <div class="upload-icon">↑</div>
+
+            <div>
+                <h3>Importar productores desde Excel</h3>
+
+                <p>
+                    Use un archivo .xlsx o .xls con las columnas
+                    <code>codigo</code> y <code>nombre</code>.
+                </p>
+            </div>
+
+            <label
+                class="primary-btn file-label"
+                for="archivoProductores"
+            >
+                Seleccionar archivo
+            </label>
+
+            <input
+                type="file"
+                id="archivoProductores"
+                accept=".xlsx,.xls"
+                hidden
+            >
+
+            <strong id="nombreArchivo">
+                No se ha seleccionado ningún archivo.
+            </strong>
+
+            <small
+                id="estadoImportacion"
+                class="import-status"
+            >
+                Puede cargar un archivo para reemplazar la base actual.
+            </small>
+
+        </div>
+
+        <div class="upload-large">
+            <div class="upload-icon">✎</div>
+            <div>
+                <h3>Agregar productor manualmente</h3>
+
+                <p>
+                    Registre un productor ingresando su
+                    <code>Código</code> y <code>Nombres completos</code>.
+                </p>
+                
+                <div class="form-grid two" style="padding: 0 20px 20px;">
+
+            <div class="field">
+
+                <label for="nuevoProductorCodigo">
+                    Código
+                </label>
+
+                <input type="text" id="nuevoProductorCodigo" placeholder="Ej. AA-A-A0123" autocomplete="off" maxlength="30">
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="nuevoProductorNombre">
+                    Nombres y apellidos
+                </label>
+
+                <input type="text" id="nuevoProductorNombre" placeholder="Ej. Juan Carlos Pérez González" autocomplete="off" >
+
+            </div>
+        </div>
+            <div style="padding: 0 20px 20px;">
+
+                <button class="primary-btn" type="button" id="btnAgregarProductor">
+                    ＋ Agregar productor
+                </button>
+
+                <span id="estadoNuevoProductor" class="config-status"></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+        <!-- ============================= -->
+<!-- BASE ACTUAL -->
+<!-- ============================= -->
+
+<div class="card-header inner">
+
+    <div>
+        <h3>Base actual</h3>
+
+        <p>
+            Productores disponibles para registrar compras.
+        </p>
+    </div>
+
+    <span
+        class="count-pill"
+        id="producerCount"
+    >
+        0
+    </span>
+
+</div>
+
+<div class="table-wrap">
+
+    <table id="tablaProductores" class="table table-hover align-middle">
+
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Productor</th>
+            </tr>
+        </thead>
+
+        <tbody id="producerTable"></tbody>
+
+    </table>
+
+</div>
+
+    </div>
+
+</div>
+
+</section>
+
+            <!-- EMPRESA -->
+            <section class="page-section" id="section-empresa">
+                <div class="section-heading"><div><h2>Empresa</h2><p>Configure la información que aparecerá en el comprobante.</p></div></div>
+                <div class="single-grid"><div class="card form-card"><div class="logo-setting"><div class="logo-preview-box"><img id="empresaLogoPreview" alt="Logo de empresa"></div><div><strong>Logo de la empresa</strong><p>Se ajustará automáticamente a un espacio de 72 × 48 mm</p><label class="secondary-btn file-label" for="empresaLogo">Seleccionar logo</label><input type="file" id="empresaLogo" accept="image/png,image/jpeg,image/webp" hidden><button type="button" class="danger-btn" id="btnEliminarLogo">Eliminar logo</button></div></div><div class="form-grid two"><div class="field"><label for="empresaRazonSocial">Razón social</label><input id="empresaRazonSocial"></div><div class="field"><label for="empresaNombreComercial">Nombre comercial</label><input id="empresaNombreComercial"></div><div class="field"><label for="empresaRuc">RUC</label><input id="empresaRuc" maxlength="13" inputmode="numeric"></div><div class="field"><label for="empresaTelefono">Teléfono</label><input id="empresaTelefono"></div><div class="field full"><label for="empresaActividad">Actividad económica</label><textarea id="empresaActividad" rows="2" maxlength="80"></textarea></div><div class="field full"><label for="empresaDireccion">Dirección</label><textarea id="empresaDireccion" rows="3" maxlength="80"></textarea></div><div class="field full"><label for="empresaCorreo">Correo</label><input id="empresaCorreo" type="email"></div></div><div class="form-actions"><button class="primary-btn" id="btnGuardarEmpresa">Guardar cambios</button><button class="danger-btn" id="btnRestaurarEmpresa">Restaurar inicial</button></div><div id="estadoEmpresa" class="config-status"></div></div></div>
+            </section>
+
+            <!-- HISTORIAL -->
+            <section class="page-section" id="section-historial">
+                <div class="section-heading"><div><h2>Historial de compras</h2><p>Consulta y exportación de todos los comprobantes generados.</p></div><div class="history-tools"><button class="primary-btn" id="btnExportarCompras">Exportar Excel</button><button class="danger-btn" id="btnLimpiarHistorial">Limpiar</button></div></div>
+                <div class="kpi-grid compact-kpis"><div class="kpi-card"><div><strong id="contadorCompras">0</strong><span>Comprobantes</span></div></div><div class="kpi-card"><div><strong id="totalAcumulado">$ 0.00</strong><span>Total acumulado</span></div></div></div>
+                <!--<div class="card"><div class="table-wrap"><table class="data-table"><thead><tr><th>Comprobante</th><th>Fecha</th><th>Código</th><th>Productor</th><th>Peso neto</th><th>Precio final</th><th>Total</th><th>Pago</th></tr></thead><tbody id="tablaCompras"></tbody></table></div></div>-->
+            <div class="table-wrap">
+                <table id="tablaHistorial" class="table table-hover align-middle">
+                    <thead><tr>
+                    <th>Número</th>
+                    <th>Fecha</th>
+                    <th>Código</th>
+                    <th>Productor</th>
+                    <th>Peso neto</th>
+                    <th>Precio final</th>
+                    <th>Total</th>
+                    <th>Forma de pago</th>
+                    </tr></thead>
+                        <tbody id="tablaCompras"></tbody>
+                </table>
+            </div>
+            </section>
+            <!-- CONFIGURACION -->
+            <section class="page-section" id="section-configuracion">
+                <div class="section-heading"><div><h2>Configuración</h2><p>Numeración y parámetros básicos del sistema.</p></div></div>
+                <div class="single-grid"><div class="card form-card"><div class="step-title"><span>1</span><div><strong>Numeración de comprobantes</strong><small>Control del establecimiento, punto de emisión y secuencial.</small></div></div><div class="form-grid three"><div class="field"><label for="establecimiento">Establecimiento</label><input id="establecimiento" maxlength="3" inputmode="numeric"></div><div class="field"><label for="puntoEmision">Punto de emisión</label><input id="puntoEmision" maxlength="3" inputmode="numeric"></div><div class="field"><label for="secuencial">Próximo secuencial</label><input id="secuencial" type="number" min="1"></div></div><p class="hint">Formato: 001-001-000000001</p><button class="primary-btn" id="btnGuardarNumeracion">Guardar numeración</button><div id="estadoNumeracion" class="config-status"></div></div></div>
+            </section>
+        </div>
+    </main>
+</div>
+<script src="js/productores.js"></script>
+<script src="js/configuracion.js"></script>
+<script src="js/historial.js"></script>
+<script src="js/calculos.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
