@@ -553,6 +553,16 @@ function asignarTexto(id,valor){const e=document.getElementById(id);if(e)e.textC
 function inicializarApp(){
   const f=document.getElementById('fecha'); if(f)f.value=new Date().toISOString().slice(0,10);
   inicializarProductores(); inicializarConfiguracion(); inicializarHistorial(); inicializarDashboard();actualizarLogoSidebar();
+    const btnMenu = document.getElementById('btnMenu');
+    const sidebar = document.getElementById('sidebar');
+
+    if (btnMenu && sidebar) {
+
+      btnMenu.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+      });
+
+    }
   document.getElementById('productor')?.addEventListener('input',seleccionarProductor);
   document.getElementById('productor')?.addEventListener('change',seleccionarProductor);
   //document.querySelectorAll('input,select,textarea').forEach(e=>{e.addEventListener('input',actualizarVista);e.addEventListener('change',actualizarVista)});
