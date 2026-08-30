@@ -148,6 +148,10 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     background: #fff;
+    min-width: 112px;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .doc-badge small {
@@ -161,12 +165,21 @@
     align-items: center;
     gap: 10px;
     white-space: nowrap;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
 }
 
 .doc-number strong,
 .doc-number b {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1;
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
 }
 
 .doc-number b {
@@ -339,6 +352,108 @@
     padding: 8px 9px;
     font-size: 10px;
 }
+
+/* ==============================
+   PRÓXIMO COMPROBANTE
+   ============================== */
+
+.doc-badge {
+    min-width: 112px;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.doc-number {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+}
+
+.doc-number strong,
+.doc-number b {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.doc-number strong {
+    font-size: 10px;
+    color: #137c69;
+}
+
+.doc-number b {
+    font-size: 18px;
+    line-height: 1;
+    color: #137c69;
+    letter-spacing: .4px;
+}
+
+
+/* ==============================
+   CELULAR
+   ============================== */
+
+@media (max-width: 800px) {
+
+    .doc-badge {
+        min-width: 95px;
+        padding: 6px 7px;
+    }
+
+    .doc-badge small {
+        font-size: 6.5px;
+        letter-spacing: .25px;
+        white-space: nowrap;
+    }
+
+    .doc-number strong {
+    font-size: 10px;
+    color: #137c69;
+    }
+
+    .doc-number b {
+    font-size: 18px;
+    line-height: 1;
+    color: #137c69;
+    letter-spacing: .4px;
+    }
+}
+
+
+/* ==============================
+   CELULARES PEQUEÑOS
+   ============================== */
+
+@media (max-width: 500px) {
+
+    .doc-badge {
+        min-width: 90px;
+        padding: 6px;
+    }
+
+    .doc-badge small {
+        font-size: 6px;
+    }
+
+    .doc-number strong {
+        font-size: 10px;
+        color: #137c69;
+    }
+
+    .doc-number b {
+    font-size: 18px;
+    line-height: 1;
+    color: #137c69;
+    letter-spacing: .4px;
+    }
+}
+
 
 </style>
 </head>
